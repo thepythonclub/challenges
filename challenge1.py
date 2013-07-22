@@ -16,7 +16,7 @@ class Challenge1(Resource):
     sessions = set()
 
     encoded = ''
-    decoded = ''
+    solution = ''
     session = None
 
     def get_answer(self, challenge):
@@ -36,7 +36,7 @@ class Challenge1(Resource):
     def render_GET(self, request):
         if 'answer' in str(request):
             return 'Maybe you should try POST ;-)'
-        self.encoded, self.decoded = self.make_string()
+        self.encoded, self.solution = self.make_string()
         self.session = request.getSession()
         if self.session.uid not in self.sessions:
             self.sessions.add(self.session.uid)
@@ -49,9 +49,12 @@ class Challenge1(Resource):
             self.session.notifyOnExpire(lambda: self._expired(self.session.uid))
             return 'Too slow...'
 
-        response = json.loads(request.content.getvalue())['answer']
-
-        if response == self.decoded:
+        try:
+            answer = json.loads(request.content.getvalue())['answer']
+        except ValueError:
+            return 'You should be submitting as JSON'
+        print answer, self.solution
+        if answer == self.solution:
             return self.get_answer('challenge1')
         else:
             return 'If at first you don\'t succeed... try, try again.'
@@ -68,5 +71,5 @@ rootResource.putChild("challenge1", Challenge1())
 factory = Site(rootResource)
 factory.sessionFactory = ShortSession
 
-reactor.listenTCP(8080, factory)
+reactor.listenTCP(8081, factory)
 reactor.run()
