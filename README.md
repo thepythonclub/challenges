@@ -1,5 +1,4 @@
 # The Python Club
-==========
 
 ## Challenges for The Python Club
 
@@ -14,25 +13,18 @@ This is a repository of challenges. Each challenge can be ran locally. To access
 
 ####HTTP interaction:
 #####Method 1:
-Documentation:
-
-[urllib2](http://www.pythonforbeginners.com/python-on-the-web/how-to-use-urllib2-in-python/)
-
-Installed by default
+Documentation: [urllib2](http://www.pythonforbeginners.com/python-on-the-web/how-to-use-urllib2-in-python/)
+* Installed by default
 
 #####Method 2:
 Documentation: [Requests](http://python-requests.org/)
-
-To install: pip install requests
+* To install: pip install requests
 
 ####Modules that may be useful:
-[Base64](http://docs.python.org/2/library/base64.html)
+* [Base64](http://docs.python.org/2/library/base64.html)
+* [JSON](http://docs.python.org/2/library/json.html)
 
-[JSON](http://docs.python.org/2/library/json.html)
-
-To run the challenges locally:
-
-[Twisted](http://twistedmatrix.com/trac/)
+To run the challenges locally: [Twisted](http://twistedmatrix.com/trac/)
 
 
 ###Additional learning
