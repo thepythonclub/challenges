@@ -4,14 +4,14 @@ from twisted.web.server import Site, Session
 from twisted.web.resource import Resource
 from twisted.internet import reactor
 import random
-import base64 
-import json 
+import json
+
 
 class LongSession (Session):
     sessionTimeout = 10
 
 
-class Challenge1(Resource):
+class Challenge4(Resource):
     sessions = set()
 
     encoded = ''
@@ -25,80 +25,79 @@ class Challenge1(Resource):
         return str(data[challenge])
 
     def generate_logic_equation(self):
-	# returns a tuple with the logic equation as string and solution as int (0 or 1)
+        # returns a tuple with the logic equation as string and solution as int (0 or 1)
 
-	logic_types = ['XOR', 'OR', 'NAND', 'AND']
-	equation = []
-	random.seed()
-	
-	num_operations = random.randint(3,7)
+        logic_types = ['XOR', 'OR', 'NAND', 'AND']
+        equation = []
+        random.seed()
 
-	# init var
-	solution = 0
+        num_operations = random.randint(3, 7)
 
-	for i in range(num_operations ) :
-		if (i == 0):
-			# generate a new left operand
-			left = random.randint(0,1)
-			equation.append(str(left))
-		else:
-			left = solution
+        solution = 0
 
-		# generate a new right operand
-		right = random.randint(0,1)
+        for i in range(num_operations):
+                if (i == 0):
+                        # generate a new left operand
+                        left = random.randint(0, 1)
+                        equation.append(str(left))
+                else:
+                        left = solution
 
-		# choose a logic operator, skip if last
-		if (i < num_operations):
-			new_gate = random.choice (logic_types)
-		else:
-			new_gate = ""
+                # generate a new right operand
+                right = random.randint(0, 1)
 
-		# keep track of solution
-		gate = logic_types.index(new_gate)
-		if (gate == 0):
-			solution = left ^ right
-		elif (gate == 1):
-			solution = left | right
-		elif (gate == 2):
-			solution = int (not (left & right))
-		elif (gate == 3):
-			solution = left & right
+                # choose a logic operator, skip if last
+                if (i < num_operations):
+                        new_gate = random.choice (logic_types)
+                else:
+                        new_gate = ""
 
-		equation.append( new_gate) 
-		equation.append( str(right))
+                # keep track of solution
+                gate = logic_types.index(new_gate)
+                if (gate == 0):
+                        solution = left ^ right
+                elif (gate == 1):
+                        solution = left | right
+                elif (gate == 2):
+                        solution = int (not (left & right))
+                elif (gate == 3):
+                        solution = left & right
 
-	# finally done
-	equation = " ".join(equation)
-	print "DBG: solution = " + str(solution) + " for " + equation 
+                equation.append(new_gate)
+                equation.append(str(right))
+
+        # finally done
+        equation = " ".join(equation)
+        print "DBG: solution = " + str(solution) + " for " + equation
 
         return equation, solution
 
     def render_GET(self, request):
-	# setup session
-        self.session = request.getSession() 
+        # setup session
+        self.session = request.getSession()
         if self.session.uid not in self.sessions:
             self.sessions.add(self.session.uid)
             self.session.notifyOnExpire(lambda: self._expired(self.session.uid))
 
-	# display challenge text
-# loop 7 times to print equations
-# TODO convert solution as ASCII byte, make sure it's printable by adding a constant if less than printable range
-# bin( ord (char) ) ?
+        # display challenge text
+        # loop 7 times to print equations
+        # TODO convert solution as ASCII byte, make sure it's printable by adding a constant if less than printable range
+        # bin( ord (char) ) ?
 
-	msg = ""
-	solution = ""
-	for i in range (7):
-		eq, sol = self.generate_logic_equation ()
-		msg += eq + "\n"
-		solution += str(sol)
+        msg = ""
+        solution = ""
+        for i in range (7):
+                eq, sol = self.generate_logic_equation ()
+                msg += eq + "\n"
+                solution += str(sol)
 
-	# TODO drop the solution into answers JSON table to check
-	print "DBG: solution = " + solution
+        # TODO drop the solution into answers JSON table to check
+        print "DBG: solution = " + solution
         return msg
 
     def render_POST(self, request):
 
-	# check for session expiry
+        # check for session expiry
         if self.session.uid not in self.sessions:
             self.sessions.add(self.session.uid)
             self.session.notifyOnExpire(lambda: self._expired(self.session.uid))
@@ -109,24 +108,25 @@ class Challenge1(Resource):
         except ValueError:
             return 'You should be submitting as JSON'
 
-        print "DBG Submission: |" + answer + "|" , self.transport.getPeer()
-	
-	# check submitted answer
+        print "DBG Submission: |" + answer + "|", self.transport.getPeer()
+
+        # check submitted answer
         if answer == self.solution:
             return self.get_answer('challenge4')
         else:
-            return 'nope'
+            return 'Incorrect\nDo you want me to repeat the last response?'
 
     def _expired(self, uid):
         try:
             self.sessions.remove(uid)
-	except:
-	    print "session ended"
+        except:
+            pass
+            #print "session ended"
 
 # if __name__ == __main__
 print "LOG: starting challenge"
 rootResource = Resource()
-rootResource.putChild("challenge4", Challenge1())
+rootResource.putChild("challenge4", Challenge4())
 factory = Site(rootResource)
 factory.sessionFactory = LongSession
 
