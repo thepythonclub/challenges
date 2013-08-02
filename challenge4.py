@@ -27,6 +27,8 @@ class Challenge4(Resource):
     def generate_logic_equation(self):
         # returns a tuple with the logic equation as string and solution as int (0 or 1)
 
+	# TODO add NOR and XNOR
+	
         logic_types = ['XOR', 'OR', 'NAND', 'AND']
         equation = []
         random.seed()
@@ -44,7 +46,8 @@ class Challenge4(Resource):
                         left = solution
 
                 # generate a new right operand
-                right = random.randint(0, 1)
+        # TODO add NOT, by flipping to add or not to the gen right bit, and inverting result if so
+        	right = random.randint(0, 1)
 
                 # choose a logic operator, skip if last
                 if (i < num_operations):
