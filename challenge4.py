@@ -80,10 +80,11 @@ class Challenge1(Resource):
             self.sessions.add(self.session.uid)
             self.session.notifyOnExpire(lambda: self._expired(self.session.uid))
 
-	# display challenge text
+# TODO store solution as binary string
+	# add 2^i to current value in for loop and convert to binary?
+	# bin( ord (char) ) ?
 # loop 7 times to print equations
 # TODO convert solution as ASCII byte, make sure it's printable by adding a constant if less than printable range
-# bin( ord (char) ) ?
 
 	msg = ""
 	solution = ""
@@ -94,6 +95,8 @@ class Challenge1(Resource):
 
 	# TODO drop the solution into answers JSON table to check
 	print "DBG: solution = " + solution
+
+	# display challenge to user
         return msg
 
     def render_POST(self, request):
