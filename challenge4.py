@@ -92,7 +92,7 @@ class Challenge4(Resource):
         #	print "DBG: result = " + str(result)
                 msg += eq + "\n"
 
-	# handle corner cases, resulting byte should be within printable ascii range
+	# TODO add this check to while loop to handle corner cases, resulting byte should be within printable ascii range
 	if (result < 32):
 		result += 32
 	elif (result > 126):
