@@ -46,7 +46,7 @@ class Challenge4(Resource):
                         left = solution
 
                 # generate a new right operand
-        # TODO add NOT, by flipping to add or not to the gen right bit, and inverting result if so
+        	# TODO add NOT, by flipping to add or not to the gen right bit, and inverting result if so
         	right = random.randint(0, 1)
 
                 # choose a logic operator, skip if last
@@ -92,7 +92,7 @@ class Challenge4(Resource):
         #	print "DBG: result = " + str(result)
                 msg += eq + "\n"
 
-	# TODO add this check to while loop to handle corner cases, resulting byte should be within printable ascii range
+	# add this check to while loop to handle corner cases, resulting byte should be within printable ascii range
 	if (result < 32):
 		result += 32
 	elif (result > 126):
