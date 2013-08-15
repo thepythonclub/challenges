@@ -14,11 +14,11 @@ class LongSession (Session):
 class Challenge4(Resource):
     sessions = set()
 
-    encoded = ''
     solution = ''
     session = None
 
     def get_answer(self, challenge):
+	# must drop answer in JSON file 
         answers = open('answers.json')
         data = json.load(answers)
         answers.close()
@@ -27,6 +27,8 @@ class Challenge4(Resource):
     def generate_logic_equation(self):
         # returns a tuple with the logic equation as string and solution as int (0 or 1)
 
+	# TODO add NOR and XNOR
+	
         logic_types = ['XOR', 'OR', 'NAND', 'AND']
         equation = []
         random.seed()
@@ -44,7 +46,8 @@ class Challenge4(Resource):
                         left = solution
 
                 # generate a new right operand
-                right = random.randint(0, 1)
+        	# TODO add NOT, by flipping to add or not to the gen right bit, and inverting result if so
+        	right = random.randint(0, 1)
 
                 # choose a logic operator, skip if last
                 if (i < num_operations):
@@ -66,9 +69,8 @@ class Challenge4(Resource):
                 equation.append(new_gate)
                 equation.append(str(right))
 
-        # finally done
         equation = " ".join(equation)
-        print "DBG: solution = " + str(solution) + " for " + equation
+        #print "DBG: solution = " + str(solution) + " for " + equation
 
         return equation, solution
 
@@ -79,20 +81,27 @@ class Challenge4(Resource):
             self.sessions.add(self.session.uid)
             self.session.notifyOnExpire(lambda: self._expired(self.session.uid))
 
-        # display challenge text
-        # loop 7 times to print equations
-        # TODO convert solution as ASCII byte, make sure it's printable by adding a constant if less than printable range
-        # bin( ord (char) ) ?
-
+	# generate equations
         msg = ""
-        solution = ""
+        result = 0
         for i in range (7):
                 eq, sol = self.generate_logic_equation ()
-                msg += eq + "\n"
-                solution += str(sol)
+		# update accumulator with binary result
+		result += (2 ** i ) * sol
 
-        # TODO drop the solution into answers JSON table to check
-        print "DBG: solution = " + solution
+        #	print "DBG: result = " + str(result)
+                msg += eq + "\n"
+
+	# add this check to while loop to handle corner cases, resulting byte should be within printable ascii range
+	if (result < 32):
+		result += 32
+	elif (result > 126):
+		result -= 1
+
+	# cast global solution as string
+	self.solution = str(chr(result))
+        #print "DBG: end solution as binary = " + str(bin(result))
+        #print "DBG: end solution as asciichar = " + str(chr(result))
         return msg
 
     def render_POST(self, request):
@@ -108,23 +117,24 @@ class Challenge4(Resource):
         except ValueError:
             return 'You should be submitting as JSON'
 
-        print "DBG Submission: |" + answer + "|", self.transport.getPeer()
+        print "DBG Submission: |" + answer + "|" 
+        print "DBG Answer was: |" + self.solution + "|" 
 
         # check submitted answer
         if answer == self.solution:
+	    print "DBG: challenge solved"
             return self.get_answer('challenge4')
         else:
-            return 'Incorrect\nDo you want me to repeat the last response?'
+            return 'wrong answer\n'
 
     def _expired(self, uid):
         try:
             self.sessions.remove(uid)
         except:
             pass
-            #print "session ended"
 
 # if __name__ == __main__
-print "LOG: starting challenge"
+print "LOG: starting bit twiddling slash logic gate challenge"
 rootResource = Resource()
 rootResource.putChild("challenge4", Challenge4())
 factory = Site(rootResource)
